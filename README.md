@@ -20,8 +20,11 @@ Visualización interactiva de la malla curricular de la carrera de Traducción e
 📁 malla-interactiva-usach/
 
 ├── index.html ← Página principal
+
 ├── style.css ← Estilos personalizados (colores, layout)
+
 ├── script.js ← Lógica de interactividad
+
 └── malla_traduccion.json← Datos de la malla en formato JSON
 
 ## 🌐 Ver en línea
