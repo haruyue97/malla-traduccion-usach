@@ -113,9 +113,9 @@ function getCodigoPorNombre(nombre) {
 
 function detectarCategoria(nombre) {
   const n = nombre.toLowerCase();
-  if (n.includes("inglés")) return "ingles";
-  if (n.includes("portugués")) return "portugues";
-  if (n.includes("japonés")) return "japones";
+  if (n.includes("inglés""inglesa")) return "ingles";
+  if (n.includes("portugués""portuguesa")) return "portugues";
+  if (n.includes("japonés""japonesa")) return "japones";
   return "general";
 }
 
