@@ -31,7 +31,7 @@ Visualización interactiva de la malla curricular de la carrera de Traducción e
 
 Puedes ver este proyecto publicado en GitHub Pages:
 
-[https://haruyue97.github.io/malla-interactiva-usach/](https://haruyue97.github.io/malla-traduccion-usach/)
+[https://haruyue97.github.io/malla-traduccion-usach/]
 
 ---
 
