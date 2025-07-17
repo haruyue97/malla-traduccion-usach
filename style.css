@@ -1,84 +1,80 @@
-
-/* style.css */
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  margin: 0;
-  padding: 2rem;
+  margin: 1rem;
+  background-color: #f4f4f4;
 }
+
 h1 {
   text-align: center;
-  margin-bottom: 2rem;
+  color: #2c3e50;
 }
+
 #malla {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
   padding: 1rem;
 }
+
 .semestre {
-  min-width: 200px;
-  background: #ffffff;
+  flex: 0 0 auto;
+  min-width: 220px;
+  background: #fff;
+  padding: 0.5rem;
   border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
 .semestre h2 {
   text-align: center;
-  font-size: 1rem;
-  background-color: #3498db;
-  color: white;
-  padding: 0.5rem;
-  border-radius: 6px;
+  margin-top: 0;
 }
+
 .card {
   position: relative;
-  background: #ecf0f1;
-  padding: 0.5rem;
+  background-color: #ecf0f1;
   margin: 0.5rem 0;
+  padding: 0.75rem;
   border-radius: 6px;
-  font-weight: bold;
-  text-align: center;
   cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
 }
-.card:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
+
+.card:hover {
+  background-color: #dfe6e9;
 }
-.tooltip {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+
+.card .tooltip {
+  display: none;
   position: absolute;
-  top: 110%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #2c3e50;
-  color: white;
+  left: 105%;
+  top: 0;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
   padding: 0.5rem;
-  border-radius: 5px;
-  font-size: 0.8rem;
-  width: max-content;
-  max-width: 200px;
+  border-radius: 4px;
+  white-space: nowrap;
   z-index: 10;
-  white-space: normal;
-  text-align: left;
 }
 
-/* Colores por categoría */
-.card.ingles { border-left: 6px solid #3498db; }
-.card.portugues { border-left: 6px solid #e74c3c; }
-.card.japones { border-left: 6px solid #27ae60; }
-.card.general { border-left: 6px solid #7f8c8d; }
+.card:hover .tooltip {
+  display: block;
+}
 
-/* Estado aprobado y bloqueado */
 .card.aprobada {
-  background: #2ecc71;
+  background-color: #2ecc71;
   color: white;
 }
+
 .card.bloqueada {
-  background: #bdc3c7;
-  color: #7f8c8d;
-  cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
+  pointer-events: none;
 }
+
+/* Colores por idioma */
+.card.ingles { border-left: 5px solid #3498db; }
+.card.portugues { border-left: 5px solid #e74c3c; }
+.card.japones { border-left: 5px solid #27ae60; }
+.card.general { border-left: 5px solid #95a5a6; }
+
