@@ -1,96 +1,121 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 1rem;
-  background-color: #f4f4f4;
+// script.js
+
+const estado = {
+  aprobadas: new Set(JSON.parse(localStorage.getItem("aprobadas") || "[]")),
+  tarjetas: new Map(),
+  datos: []
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const response = await fetch("malla_traduccion.json");
+  const data = await response.json();
+  estado.datos = data;
+
+  const mallaContainer = document.getElementById("malla");
+  const semestres = {};
+
+  const botonReset = document.createElement("button");
+  botonReset.textContent = "🔄 Borrar progreso";
+  botonReset.style.margin = "1rem auto";
+  botonReset.style.display = "block";
+  botonReset.style.padding = "0.5rem 1rem";
+  botonReset.style.fontSize = "1rem";
+  botonReset.style.cursor = "pointer";
+  botonReset.onclick = borrarProgreso;
+  document.body.insertBefore(botonReset, mallaContainer);
+
+  data.forEach(asignatura => {
+    const semestre = asignatura.Semestre;
+    if (!semestres[semestre]) semestres[semestre] = [];
+    semestres[semestre].push(asignatura);
+  });
+
+  Object.keys(semestres).sort((a, b) => a - b).forEach(num => {
+    const columna = document.createElement("div");
+    columna.className = "semestre";
+
+    const titulo = document.createElement("h2");
+    titulo.textContent = `Semestre ${num}`;
+    columna.appendChild(titulo);
+
+    semestres[num].forEach(asignatura => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.textContent = asignatura.Asignatura;
+      card.dataset.codigo = asignatura.Código;
+
+      const categoria = detectarCategoria(asignatura.Asignatura);
+      card.classList.add(categoria);
+
+      const tooltip = document.createElement("div");
+      tooltip.className = "tooltip";
+      tooltip.innerHTML = `
+        <strong>Código:</strong> ${asignatura.Código}<br>
+        <strong>Prerrequisito:</strong> ${asignatura.Prerequisito || "Ninguno"}
+      `;
+
+      card.appendChild(tooltip);
+
+      estado.tarjetas.set(asignatura.Código, {
+        element: card,
+        prereq: asignatura.Prerequisito
+      });
+
+      columna.appendChild(card);
+    });
+
+    mallaContainer.appendChild(columna);
+  });
+
+  mallaContainer.addEventListener("click", event => {
+    const card = event.target.closest(".card");
+    if (!card || card.classList.contains("bloqueada")) return;
+    const codigo = card.dataset.codigo;
+    toggleAprobada(codigo);
+  });
+
+  actualizarEstado();
+});
+
+function toggleAprobada(codigo) {
+  if (estado.aprobadas.has(codigo)) {
+    estado.aprobadas.delete(codigo);
+  } else {
+    estado.aprobadas.add(codigo);
+  }
+  localStorage.setItem("aprobadas", JSON.stringify([...estado.aprobadas]));
+  actualizarEstado();
 }
 
-h1 {
-  text-align: center;
-  color: #2c3e50;
+function actualizarEstado() {
+  estado.tarjetas.forEach((info, codigo) => {
+    const { element, prereq } = info;
+    const aprobado = estado.aprobadas.has(codigo);
+    const habilitado = !prereq || estado.aprobadas.has(getCodigoPorNombre(prereq));
+
+    element.classList.toggle("aprobada", aprobado);
+    element.classList.toggle("bloqueada", !habilitado && !aprobado);
+  });
 }
 
-#malla {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding: 1rem;
+function borrarProgreso() {
+  const confirmar = confirm("¿Estás seguro que deseas borrar todo el progreso?");
+  if (!confirmar) return;
+  localStorage.removeItem("aprobadas");
+  estado.aprobadas.clear();
+  actualizarEstado();
 }
 
-.semestre {
-  flex: 0 0 auto;
-  min-width: 220px;
-  background: #ffffff;
-  padding: 0.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+function getCodigoPorNombre(nombre) {
+  const match = estado.datos.find(a => a.Asignatura === nombre);
+  return match ? match.Código : "";
 }
 
-.semestre h2 {
-  text-align: center;
-  margin-top: 0;
+function detectarCategoria(nombre) {
+  const n = nombre.toLowerCase();
+  if (n.includes("inglés")) return "ingles";
+  if (n.includes("portugués")) return "portugues";
+  if (n.includes("japonés")) return "japones";
+  return "general";
 }
 
-.card {
-  position: relative;
-  background-color: #ecf0f1;
-  margin: 0.5rem 0;
-  padding: 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s, opacity 0.3s;
-  text-align: center;
-  border-left: 6px solid #bdc3c7;
-}
-
-.card:hover {
-  background-color: #dcdde1;
-}
-
-.card .tooltip {
-  display: none;
-  position: absolute;
-  left: 105%;
-  top: 0;
-  background: rgba(0,0,0,0.8);
-  color: #fff;
-  padding: 0.5rem;
-  border-radius: 4px;
-  white-space: nowrap;
-  z-index: 10;
-}
-
-.card:hover .tooltip {
-  display: block;
-}
-
-/* ✅ Asignatura aprobada */
-.card.aprobada {
-  background-color: #2ecc71 !important;
-  color: #fff !important;
-  border-left-color: #27ae60;
-}
-
-/* 🔒 Asignatura bloqueada */
-.card.bloqueada {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* 🟦 Colores por idioma */
-.card.ingles { border-left-color: #3498db; }
-.card.portugues { border-left-color: #e74c3c; }
-.card.japones { border-left-color: #27ae60; }
-.card.general { border-left-color: #7f8c8d; }
-
-/* 🔁 Botón de reset */
-button {
-  background-color: #e67e22;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
-
-button:hover {
-  background-color: #d35400;
-}
