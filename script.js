@@ -1,8 +1,7 @@
-
 // script.js
 
 const estado = {
-  aprobadas: new Set(),
+  aprobadas: new Set(JSON.parse(localStorage.getItem("aprobadas") || "[]")),
   tarjetas: new Map(),
   datos: []
 };
@@ -15,14 +14,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mallaContainer = document.getElementById("malla");
   const semestres = {};
 
-  // Agrupar asignaturas por semestre
+  const botonReset = document.createElement("button");
+  botonReset.textContent = "🔄 Borrar progreso";
+  botonReset.style.margin = "1rem auto";
+  botonReset.style.display = "block";
+  botonReset.style.padding = "0.5rem 1rem";
+  botonReset.style.fontSize = "1rem";
+  botonReset.style.cursor = "pointer";
+  botonReset.onclick = borrarProgreso;
+  document.body.insertBefore(botonReset, mallaContainer);
+
   data.forEach(asignatura => {
     const semestre = asignatura.Semestre;
     if (!semestres[semestre]) semestres[semestre] = [];
     semestres[semestre].push(asignatura);
   });
 
-  // Crear columnas por semestre
   Object.keys(semestres).sort((a, b) => a - b).forEach(num => {
     const columna = document.createElement("div");
     columna.className = "semestre";
@@ -49,7 +56,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       card.appendChild(tooltip);
 
-      // Guardar referencia
       estado.tarjetas.set(asignatura.Código, {
         element: card,
         prereq: asignatura.Prerequisito
@@ -61,7 +67,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     mallaContainer.appendChild(columna);
   });
 
-  // Delegar eventos
   mallaContainer.addEventListener("click", event => {
     const card = event.target.closest(".card");
     if (!card || card.classList.contains("bloqueada")) return;
@@ -78,6 +83,7 @@ function toggleAprobada(codigo) {
   } else {
     estado.aprobadas.add(codigo);
   }
+  localStorage.setItem("aprobadas", JSON.stringify([...estado.aprobadas]));
   actualizarEstado();
 }
 
@@ -90,6 +96,14 @@ function actualizarEstado() {
     element.classList.toggle("aprobada", aprobado);
     element.classList.toggle("bloqueada", !habilitado && !aprobado);
   });
+}
+
+function borrarProgreso() {
+  const confirmar = confirm("¿Estás seguro que deseas borrar todo el progreso?");
+  if (!confirmar) return;
+  localStorage.removeItem("aprobadas");
+  estado.aprobadas.clear();
+  actualizarEstado();
 }
 
 function getCodigoPorNombre(nombre) {
